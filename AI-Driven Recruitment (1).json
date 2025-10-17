@@ -1,0 +1,1800 @@
+{
+  "name": "AI-Driven Recruitment",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8cf1eecc-8a4d-4141-8b48-ace4826c4a59",
+              "name": "title",
+              "value": "={{ $json.info.Title }}",
+              "type": "string"
+            },
+            {
+              "id": "966a8064-ca16-4cf9-82d5-30579301461e",
+              "name": "author",
+              "value": "={{ $json.info.Author }}",
+              "type": "string"
+            },
+            {
+              "id": "57e93849-884f-4a4c-bf0c-eed9a7f3d04f",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1968,
+        -496
+      ],
+      "id": "af891e02-116d-4658-845a-ab326727db81",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1a674692-2e66-45cb-b57a-a2cf68add97d",
+              "leftValue": "={{ $('Candidate').item.json.job_title }}",
+              "rightValue": "={{ $json.job_title }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2672,
+        -80
+      ],
+      "id": "2e8c322f-41fd-4439-8565-748a42dafad7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI CV screener.\n\nCompare this candidate’s CV against the job description.\n\nJOB DESCRIPTION: {{ $json.job_description }}\n\nCANDIDATE CV: {{ $('CV Summary').item.json.choices[0].message.content }}\n\nTasks:\n1.For each score, output only the number (0–100), no labels, no extra text.\n\n   - Skills match\n   - Experience\n   - Culture fit\n   - Leadership & teamwork\n   - Technical knowledge\n\n2. Provide ONE complete descriptive paragraph (6–8 full sentences) summarizing the candidate’s suitability for the role. \n   - The summary must always be complete, not cut off.\n\n3. IMPORTANT: Output must be plain text, exactly in this format, with no labels:\n\n<skills score as number/100>\n<experience score as number/100>\n<culture fit score as number/100>\n<leadership score as number/100>\n<technical score as number/100>\n\n<one complete paragraph summary>\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -2448,
+        -96
+      ],
+      "id": "a9ce5a23-f81a-4603-b54b-c934ccd9513b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "tableId": "Company",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "company_name",
+              "fieldValue": "={{ $json.query.company_name }}"
+            },
+            {
+              "fieldId": "company description",
+              "fieldValue": "={{ $json.query.company_description }}"
+            },
+            {
+              "fieldId": "job_title",
+              "fieldValue": "={{ $json.query.job_title }}"
+            },
+            {
+              "fieldId": "job_description",
+              "fieldValue": "={{ $json.query.job_requirements }}"
+            },
+            {
+              "fieldId": "Company-Email",
+              "fieldValue": "={{ $json.query.notification_email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2640,
+        -720
+      ],
+      "id": "f8677df9-e2d1-4cc6-affa-b36b633e1648",
+      "name": "Company",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "Evaluations",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "skills_score",
+              "fieldValue": "={{ $('AI Agent').item.json.output[0] }}"
+            },
+            {
+              "fieldId": "experience_score",
+              "fieldValue": "={{ $('AI Agent').item.json.output[1] }}"
+            },
+            {
+              "fieldId": "culture_fit_score",
+              "fieldValue": "={{ $('AI Agent').item.json.output[2] }}"
+            },
+            {
+              "fieldId": "leadership_score",
+              "fieldValue": "={{ $('AI Agent').item.json.output[3] }}"
+            },
+            {
+              "fieldId": "technical_score",
+              "fieldValue": "={{ $('AI Agent').item.json.output[4] }}"
+            },
+            {
+              "fieldId": "overall_summary",
+              "fieldValue": "={{ $('AI Agent').item.json.output[5] }}"
+            },
+            {
+              "fieldId": "candidate_id",
+              "fieldValue": "={{ $('Candidate').item.json.id }}"
+            },
+            {
+              "fieldId": "company_id",
+              "fieldValue": "={{ $('Company Info.').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2144,
+        -96
+      ],
+      "id": "a218ff72-3ff9-4389-ae67-0c1efc54010d",
+      "name": "Evaluations",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=cv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -2192,
+        -496
+      ],
+      "id": "f7f91915-512d-4363-858f-457fec92f81b",
+      "name": "Extract from CV (RAW)"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => ({\n  json: {\n    ...item.json,\n    safeText: (item.json.text || \"\").replace(/\\r?\\n+/g, \" \").trim()\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1760,
+        -496
+      ],
+      "id": "a585c1ec-fd8d-48cc-a828-f0b6e924c714",
+      "name": "Clean Text"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer (enter token)"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"meta-llama/Meta-Llama-3-8B-Instruct\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Summarize and organize this CV:\\n\\nTitle: {{ $json.title }}\\nAuthor: {{ $json.author }}\\nText: {{ $json.safeText }}\"\n    }\n  ],\n  \"stream\": false\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1520,
+        -496
+      ],
+      "id": "29cbfd6f-54e2-4663-beb7-10c529420dab",
+      "name": "CV Summary"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Company Info.').item.json['Company-Email'] }}",
+        "subject": "=Candidate: {{ $('Candidate').item.json.full_name }} submitted an application for {{ $('Company Info.').item.json.job_title }}",
+        "message": "=<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>New Candidate Application</title>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <style>\n      body {\n        font-family: \"Inter\", Arial, Helvetica, sans-serif;\n        background: #ffffff; /* pure white */\n        margin: 0;\n        padding: 0;\n        color: #0f1724;\n        -webkit-font-smoothing: antialiased;\n      }\n\n      .container {\n        max-width: 680px;\n        margin: 48px auto;\n        background: #ffffff;\n        border-radius: 24px;\n        box-shadow: 0 4px 24px rgba(2, 6, 23, 0.05);\n        overflow: hidden;\n        border: 1px solid #f2f2f2;\n        transition: all 0.3s ease;\n      }\n\n      .container:hover {\n        box-shadow: 0 6px 32px rgba(0, 0, 0, 0.06);\n        transform: translateY(-2px);\n      }\n\n      .header {\n        padding: 32px;\n        border-bottom: 1px solid #f0f2f5;\n        background: none; /* removed gradient */\n      }\n\n      .header h2 {\n        margin: 0;\n        font-size: 22px;\n        font-weight: 700;\n        background: linear-gradient(to right, #5227ff, #b19eef);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .content {\n        padding: 32px;\n        line-height: 1.7;\n      }\n\n      .row {\n        margin-bottom: 14px;\n      }\n\n      .scores {\n        display: flex;\n        flex-wrap: wrap;\n        gap: 10px;\n        margin: 20px 0;\n      }\n\n      .pill {\n        background: none; /* removed tinted bg */\n        padding: 9px 16px;\n        border-radius: 999px;\n        font-weight: 600;\n        font-size: 13.5px;\n        color: #4c1d95;\n        border: 1px solid #e4ddff;\n      }\n\n      .summary {\n        background: none; /* removed gradient */\n        border-left: 4px solid #7c3aed;\n        padding: 16px 18px;\n        border-radius: 8px;\n        margin-top: 18px;\n        box-shadow: none;\n      }\n\n      .summary strong {\n        background: linear-gradient(to right, #5227ff, #b19eef);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .buttons {\n        margin-top: 24px;\n      }\n\n      .btn {\n        text-decoration: none;\n        display: inline-block;\n        padding: 14px 22px;\n        border-radius: 999px;\n        font-weight: 600;\n        font-size: 14px;\n        color: #fff !important;\n        background: linear-gradient(to right, #5227ff, #b19eef);\n        box-shadow: 0 3px 10px rgba(82, 39, 255, 0.25);\n        transition: all 0.25s ease;\n      }\n\n      .btn:hover {\n        opacity: 0.95;\n        transform: translateY(-1px);\n        box-shadow: 0 4px 14px rgba(82, 39, 255, 0.3);\n      }\n\n      .footer {\n        padding: 24px 28px;\n        font-size: 13px;\n        color: #6b7280;\n        border-top: 1px solid #f0f2f5;\n        text-align: center;\n        line-height: 1.6;\n        background: none; /* no tint */\n      }\n\n      a.plain {\n        color: #6d28d9;\n        text-decoration: none;\n        border-radius: 6px;\n        transition: all 0.15s ease;\n      }\n\n      a.plain:hover {\n        text-decoration: underline;\n      }\n    </style>\n  </head>\n\n  <body>\n    <div class=\"container\">\n      <!-- Header -->\n      <div class=\"header\">\n        <h2>New Candidate Application — {{ $('Company Info.').item.json.job_title }}</h2>\n      </div>\n\n      <!-- Body -->\n      <div class=\"content\">\n        <p>Hello <strong>{{ $('Company Info.').item.json.company_name }}</strong> Team,</p>\n        <p>\n          A new candidate has applied for the\n          <strong>{{ $('Company Info.').item.json.job_title }}</strong> role. Below are the details:\n        </p>\n\n        <div class=\"row\">\n          <strong>Candidate:</strong> {{ $('Candidate').item.json.full_name }}<br />\n          <strong>Email:</strong> {{ $('Candidate').item.json.email }}<br />\n          <strong>Phone:</strong> {{ $('Candidate').item.json.phone_number }}\n        </div>\n\n        <!-- Scores -->\n        <div class=\"scores\">\n          <div class=\"pill\">Skills: {{ $json.skills_score }}/100</div>\n          <div class=\"pill\">Experience: {{ $json.experience_score }}/100</div>\n          <div class=\"pill\">Culture Fit: {{ $json.culture_fit_score }}/100</div>\n          <div class=\"pill\">Leadership: {{ $json.leadership_score }}/100</div>\n          <div class=\"pill\">Technical: {{ $json.technical_score }}/100</div>\n        </div>\n\n        <!-- Summary -->\n        <div class=\"summary\">\n          <strong>Summary</strong>\n          <p style=\"margin:8px 0 0 0;\">{{ $json.overall_summary }}</p>\n        </div>\n\n        <!-- CV Link -->\n        <div style=\"margin-top:16px;\">\n          <strong>CV / Documents:</strong><br />\n          <a class=\"plain\" href=\"{{ $('Candidate').item.json.CV_URL }}\" target=\"_blank\">Download Candidate CV</a>\n        </div>\n\n        <!-- Form Button -->\n        <div class=\"buttons\">\n          <a\n            class=\"btn\"\n            href=\"https://48654b02da74.ngrok-free.app/form/81669c85-5e58-454c-93cd-d32a4a8f1afe?candidate_id={{ $('Candidate').item.json.id }}\"\n            target=\"_blank\"\n            >📝 Review Candidate & Submit Decision</a\n          >\n        </div>\n\n        <p style=\"margin-top:18px; font-size:13px; color:#6b7280;\">\n          Default application status: <strong>In Review</strong>. Please click the\n          button above to select Shortlist or Reject and add your note.\n        </p>\n      </div>\n\n      <!-- Footer -->\n      <div class=\"footer\">\n        Sent by Recruitment Automation System<br />\n        <span style=\"font-size:12px; color:#9ca3af;\">\n          If you did not expect this email or need help, reply to this message or contact support@yourdomain.com\n        </span>\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1952,
+        -96
+      ],
+      "id": "69ae157f-72b9-40c9-8134-d1278dc3fe6f",
+      "name": "Mail To Company",
+      "webhookId": "6cdcf8b4-ebd0-4471-87c2-1db8e54e3046",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Candidate').item.json.email }}",
+        "subject": "=Your {{ $('Candidate').item.json.job_title }} Application Has Been Submitted.",
+        "message": "=<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>Application Received</title>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <style>\n      body {\n        font-family: Arial, Helvetica, sans-serif;\n        background: none; /* Removed background */\n        margin: 0;\n        padding: 0;\n      }\n\n      .card {\n        max-width: 640px;\n        margin: 40px auto;\n        background: #ffffff;\n        border-radius: 16px;\n        box-shadow: 0 4px 24px rgba(2, 6, 23, 0.08);\n        overflow: hidden;\n      }\n\n      .pad {\n        padding: 32px;\n        color: #0f1724;\n        line-height: 1.6;\n      }\n\n      .title {\n        font-size: 22px;\n        font-weight: 700;\n        margin: 0 0 18px 0;\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .muted {\n        color: #6b7280;\n        font-size: 15px;\n        margin: 0 0 18px 0;\n      }\n\n      p {\n        margin: 0 0 18px 0;\n      }\n\n      .btn {\n        display: inline-block;\n        margin: 20px 0 10px 0;\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        color: #fff !important;\n        padding: 12px 20px;\n        border-radius: 8px;\n        text-decoration: none !important;\n        font-weight: 600;\n        font-size: 14px;\n        transition: opacity 0.2s ease-in-out;\n      }\n\n      .btn:hover {\n        opacity: 0.9;\n      }\n\n      .footer {\n        padding: 20px 28px;\n        font-size: 13px;\n        border-top: 1px solid #f0f2f5;\n        line-height: 1.6;\n        text-align: center;\n        background: #ffffff;\n      }\n\n      .footer strong {\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      a.link {\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n        text-decoration: none;\n        font-weight: 600;\n      }\n\n      a.link:hover {\n        opacity: 0.85;\n      }\n    </style>\n  </head>\n\n  <body>\n    <div class=\"card\">\n      <div class=\"pad\">\n        <p class=\"title\">\n          Application Received — {{ $('Candidate').item.json.job_title }}\n        </p>\n\n        <p class=\"muted\">Hi {{ $('Candidate').item.json.full_name }},</p>\n\n        <p>\n          Thank you for applying for the\n          <strong>{{ $('Candidate').item.json.job_title }}</strong> role at\n          <strong>{{ $('Company Info.').item.json.company_name }}</strong>. We’ve\n          successfully received your application and CV.\n        </p>\n\n        <p>\n          Our recruitment team will carefully review your submission. If your\n          profile matches the requirements, we’ll reach out to you with the next\n          steps.\n        </p>\n\n        <a\n          class=\"btn\"\n          href=\"{{ $('Candidate').item.json.CV_URL }}\"\n          target=\"_blank\"\n        >\n          View Submitted CV\n        </a>\n\n        <p class=\"muted\" style=\"margin-top: 20px;\">\n          If you have any questions or need to update your application, simply\n          reply to this email or contact us at\n          <a href=\"mailto:support@yourdomain.com\" class=\"link\">support@yourdomain.com</a>.\n        </p>\n      </div>\n\n      <div class=\"footer\">\n        Warm regards, <br />\n        <strong>Recruitment Team</strong> — {{ $('Company Info.').item.json.company_name }}\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1744,
+        -96
+      ],
+      "id": "590dcd66-6202-4c17-916a-e588dd82b577",
+      "name": "Mail To Candidate",
+      "webhookId": "c52ff0a7-6e78-4121-96e9-d7e2c1958465",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2496,
+        112
+      ],
+      "id": "6c91ca03-2f6d-4f51-8f35-2a42bc00076f",
+      "name": "Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QOXaJPkDX0uqeA83",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Company Info.').item.json.job_title }}",
+        "contextWindowLength": 1
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2400,
+        112
+      ],
+      "id": "36e4f8e4-0eb7-43a5-a006-833e6b3db96f",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "numberOfItems": 6,
+          "separator": "\\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserItemList",
+      "typeVersion": 1,
+      "position": [
+        -2288,
+        112
+      ],
+      "id": "6c00894b-1e91-4dbd-bbb0-616748644456",
+      "name": "No. Of Outputs"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1296,
+        -368
+      ],
+      "id": "26722b2f-c636-4e13-bf87-afd8298fbe98",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "tableId": "Candidates",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "full_name",
+              "fieldValue": "={{ $json.body.full_name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.body.email_address }}"
+            },
+            {
+              "fieldId": "phone_number",
+              "fieldValue": "={{ $json.body.phone_number }}"
+            },
+            {
+              "fieldId": "job_title",
+              "fieldValue": "={{ $json.body.job_title }}"
+            },
+            {
+              "fieldId": "motivation",
+              "fieldValue": "={{ $json.body.motivation }}"
+            },
+            {
+              "fieldId": "cv_summary",
+              "fieldValue": "={{ $('CV Summary').item.json.choices[0].message.content }}"
+            },
+            {
+              "fieldId": "CV_URL",
+              "fieldValue": "=https://jfnrhqcradyyxnjprqss.supabase.co/storage/v1/object/public/{{ $node[\"CV Stored In Bucket\"].json.Key }}\n"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        -352
+      ],
+      "id": "3fd5f8aa-16c8-4127-b3c8-a38ea4ba7b67",
+      "name": "Candidate",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Company",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_title",
+              "keyValue": "={{ $json.job_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2848,
+        -80
+      ],
+      "id": "211b4ff9-832e-41b6-a5a7-852c168d0f33",
+      "name": "Company Info.",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function node: create a unique filename for the uploaded CV\nfor (let i = 0; i < items.length; i++) {\n  const original = items[i].binary.cv.fileName;\n  items[i].json.fileName = Date.now().toString() + '_' + original;\n}\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2640,
+        -352
+      ],
+      "id": "a1cddfb4-abfd-4f7a-96ca-d192195aa482",
+      "name": "File ID Generator"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function node: deep-copy binary from SOURCE_KEY to for_storage\nconst SOURCE_KEY = 'cvUpload'; // <<< REPLACE with your binary key name (e.g. \"data\" or \"file\")\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  if (!item.binary || !item.binary[SOURCE_KEY]) {\n    // nothing to copy\n    continue;\n  }\n\n  const orig = item.binary[cv];\n\n  // orig.data might be a Buffer or a base64 string; handle both.\n  let bufferData;\n  if (Buffer.isBuffer(orig.data)) {\n    bufferData = Buffer.from(orig.data); // copy buffer\n  } else if (typeof orig.data === 'string') {\n    // may be base64 string\n    bufferData = Buffer.from(orig.data, 'base64');\n  } else {\n    // try to coerce\n    bufferData = Buffer.from(orig.data);\n  }\n\n  // Build a standalone binary object copy\n  item.binary = item.binary || {};\n  item.binary['for_storage'] = {\n    fileName: orig.fileName || (SOURCE_KEY + '.pdf'),\n    mimeType: orig.mimeType || 'application/pdf',\n    data: bufferData\n  };\n\n  // leave the original binary untouched (still in item.binary[SOURCE_KEY])\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2416,
+        -352
+      ],
+      "id": "0a8a5d6c-ddea-44e3-90b4-2624ae632515",
+      "name": "Multiple Binary Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jfnrhqcradyyxnjprqss.supabase.co/storage/v1/object/cvs/{{ $('File ID Generator').item.json.fileName }}\n\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmbnJocWNyYWR5eXhuanBycXNzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODc5MDAyMywiZXhwIjoyMDc0MzY2MDIzfQ.QUf3wUTrjJh61BqEuD74r5FUp4iy6zkp2Y9PiLGAStc"
+            },
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmbnJocWNyYWR5eXhuanBycXNzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODc5MDAyMywiZXhwIjoyMDc0MzY2MDIzfQ.QUf3wUTrjJh61BqEuD74r5FUp4iy6zkp2Y9PiLGAStc"
+            },
+            {
+              "name": "content-type",
+              "value": "application/octet-stream"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "cv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1872,
+        -288
+      ],
+      "id": "7bdddc22-d428-4eac-92f2-22f53228170c",
+      "name": "CV Stored In Bucket"
+    },
+    {
+      "parameters": {
+        "formTitle": "Shortlist Or Reject",
+        "formDescription": "Here in this form, you can shortlist or reject the candidate.",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "candidate_id",
+              "fieldType": "hiddenField",
+              "fieldValue": "={{$query.candidate_id}}"
+            },
+            {
+              "fieldLabel": "Candidate Status",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Shortlisted"
+                  },
+                  {
+                    "option": "Rejected"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message For Candidate",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -2848,
+        384
+      ],
+      "id": "575a29aa-45d7-4549-b43a-6c934650199b",
+      "name": "Mail Form",
+      "webhookId": "81669c85-5e58-454c-93cd-d32a4a8f1afe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "43284de0-b28e-4abf-8bbd-c9f0d7962e83",
+              "name": "Candidate Id",
+              "value": "={{ $json.candidate_id }}",
+              "type": "string"
+            },
+            {
+              "id": "b961764d-56e7-46d7-aa32-50415eddc894",
+              "name": "Status",
+              "value": "={{ $json['Candidate Status'] }}",
+              "type": "string"
+            },
+            {
+              "id": "43079d15-60b3-4f23-8aa6-8bc8352005a8",
+              "name": "Message",
+              "value": "={{ $json['Message For Candidate'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2672,
+        384
+      ],
+      "id": "06b1aa8a-b495-4ed1-a20b-643bfa8371d9",
+      "name": "Name Fields"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "Candidates",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json['Candidate Id'] }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Status",
+              "fieldValue": "={{ $json.Status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2480,
+        384
+      ],
+      "id": "7a36762d-0d51-4462-8b73-181f07074009",
+      "name": "Status Update",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Candidates",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2288,
+        384
+      ],
+      "id": "f5e3565c-51e8-4238-b41e-d0f6f25973b7",
+      "name": "Row Info.",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Company",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_title",
+              "keyValue": "={{ $json.job_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2064,
+        384
+      ],
+      "id": "0a01740f-48a4-4cff-814b-e864c98eb66f",
+      "name": "Company Info",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Row Info.').item.json.Status }}",
+                    "rightValue": "Shortlisted",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9494abec-234d-4401-ab52-c8547d193dd6"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5ee8111f-f0d4-4c07-aad3-23ee895f2ba1",
+                    "leftValue": "={{ $('Row Info.').item.json.Status }}",
+                    "rightValue": "Rejected",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1840,
+        384
+      ],
+      "id": "7fd63f97-4105-403c-9ef4-1a8a424f4291",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Row Info.').item.json.email }}",
+        "subject": "=Great news! You’ve been shortlisted for {{ $json.job_title }} at {{ $('Company Info').item.json.company_name }}",
+        "message": "=<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>Shortlisted</title>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <style>\n      body {\n        font-family: Arial, Helvetica, sans-serif;\n        background: #ffffff; /* pure white */\n        margin: 0;\n        padding: 0;\n        color: #0f1724;\n      }\n\n      .card {\n        max-width: 640px;\n        margin: 40px auto;\n        background: #ffffff; /* white card */\n        border-radius: 16px;\n        box-shadow: 0 4px 24px rgba(2, 6, 23, 0.05);\n        overflow: hidden;\n        border: 1px solid #f2f2f2;\n      }\n\n      .pad {\n        padding: 32px;\n        line-height: 1.7;\n      }\n\n      .title {\n        font-size: 22px;\n        font-weight: 700;\n        margin: 0 0 18px 0;\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .muted {\n        color: #6b7280;\n        font-size: 15px;\n        margin: 0 0 18px 0;\n      }\n\n      p {\n        margin: 0 0 18px 0;\n      }\n\n      .message-box {\n        border-left: 4px solid transparent;\n        border-image: linear-gradient(to bottom, #5227FF, #B19EEF) 1;\n        padding: 16px 18px;\n        border-radius: 8px;\n        margin: 24px 0;\n        font-style: italic;\n        color: #111827;\n        background: none; /* removed gray background */\n      }\n\n      .message-box strong {\n        display: block;\n        margin-bottom: 8px;\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .footer {\n        padding: 20px 28px;\n        background: none; /* removed footer background */\n        color: #6b7280;\n        font-size: 13px;\n        border-top: 1px solid #f0f2f5;\n        line-height: 1.6;\n        text-align: center;\n      }\n\n      .footer strong {\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n    </style>\n  </head>\n\n  <body>\n    <div class=\"card\">\n      <div class=\"pad\">\n        <p class=\"title\">🎉 Great news — you’ve been shortlisted!</p>\n        <p class=\"muted\">Hi {{ $('Row Info.').item.json.full_name }},</p>\n\n        <p>\n          Congratulations! We’re delighted to inform you that you’ve been\n          <strong>shortlisted</strong> for the\n          <strong>{{ $json.job_title }}</strong> role at\n          <strong>{{ $('Company Info').item.json.company_name }}</strong>.\n        </p>\n\n        <p>\n          Your skills and experience really stood out among many applicants, and\n          we’re excited to move you forward to the next stage of our hiring\n          process.\n        </p>\n\n        <!-- Recruiter custom message -->\n        <div class=\"message-box\">\n          <strong>Here’s a note from the {{ $('Company Info').item.json.company_name }} team:</strong>\n          <p>{{ $('Name Fields').item.json.Message }}</p>\n        </div>\n\n        <p>\n          To continue, please check your inbox for another email we’ve sent you.\n          That message contains a set of questions — kindly reply to that email\n          with your answers so we can proceed to the next step.\n        </p>\n\n        <p class=\"muted\">\n          We’re looking forward to getting to know you better in the next stage!\n        </p>\n      </div>\n\n      <div class=\"footer\">\n        Warm regards,<br />\n        <strong>Recruitment Team</strong> — {{ $('Company Info').item.json.company_name }}\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1584,
+        288
+      ],
+      "id": "3423faa8-3fe8-40b0-a364-28bca49b28f5",
+      "name": "Shortlisted",
+      "webhookId": "7de83605-ba88-4dc5-bcc3-96ad353151fa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Row Info.').item.json.email }}",
+        "subject": "=Update on your application for {{ $('Row Info.').item.json.job_title }} at {{ $('Company Info').item.json.company_name }}",
+        "message": "=<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>Application Outcome</title>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <style>\n      body {\n        font-family: Arial, Helvetica, sans-serif;\n        background: #f6f8fa;\n        margin: 0;\n        padding: 0;\n      }\n\n      .card {\n        max-width: 640px;\n        margin: 40px auto;\n        background: #ffffff;\n        border-radius: 16px; /* smoother edges */\n        box-shadow: 0 4px 24px rgba(2, 6, 23, 0.08);\n        overflow: hidden;\n      }\n\n      .pad {\n        padding: 32px;\n        color: #0f1724;\n        line-height: 1.6;\n      }\n\n      .title {\n        font-size: 22px;\n        font-weight: 700;\n        margin: 0 0 18px 0;\n        background: linear-gradient(to right, #ff4d6d, #ff8fa3);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .muted {\n        color: #6b7280;\n        font-size: 15px;\n        margin: 0 0 18px 0;\n      }\n\n      p {\n        margin: 0 0 18px 0;\n      }\n\n      .message-box {\n        background: #f9fafb;\n        border-left: 4px solid transparent;\n        border-image: linear-gradient(to bottom, #ff4d6d, #ff8fa3) 1;\n        padding: 16px 18px;\n        border-radius: 8px;\n        margin: 24px 0;\n        font-style: italic;\n        color: #111827;\n      }\n\n      .message-box strong {\n        display: block;\n        margin-bottom: 8px;\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .footer {\n        padding: 20px 28px;\n        background: #ffffff;\n        color: #6b7280;\n        font-size: 13px;\n        border-top: 1px solid #f0f2f5;\n        line-height: 1.6;\n        text-align: center;\n      }\n\n      .footer strong {\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n    </style>\n  </head>\n\n  <body>\n    <div class=\"card\">\n      <div class=\"pad\">\n        <p class=\"title\">Application Update</p>\n        <p class=\"muted\">Hi {{ $('Row Info.').item.json.full_name }},</p>\n\n        <p>\n          Thank you sincerely for taking the time to apply for the\n          <strong>{{ $('Row Info.').item.json.job_title }}</strong> role at\n          <strong>{{ $('Company Info').item.json.company_name }}</strong>. After careful\n          consideration, we regret to inform you that we will not be moving\n          forward with your application at this time.\n        </p>\n\n        <!-- Recruiter custom message -->\n        <div class=\"message-box\">\n          <strong>Feedback from the {{ $('Company Info').item.json.company_name }} team:</strong>\n          <p>{{ $('Name Fields').item.json.Message }}</p>\n        </div>\n\n        <p>\n          Please know that this decision was not easy, and we truly appreciate the\n          effort and interest you put into your application. We encourage you to\n          stay connected and apply again for future opportunities that align with\n          your skills and aspirations.\n        </p>\n\n        <p class=\"muted\">\n          Wishing you every success in your career journey ahead.\n        </p>\n      </div>\n\n      <div class=\"footer\">\n        Kind regards,<br />\n        <strong>Recruitment Team</strong> — {{ $('Company Info').item.json.company_name }}\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1584,
+        464
+      ],
+      "id": "53a179c3-aa5c-4a13-9f39-25cfa3f6dab1",
+      "name": "Rejected",
+      "webhookId": "16c46bf9-b1b0-4ca9-bff6-42bd3bcb8001",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert recruiter and AI-assistant. \n\nYou are given the following job information:\n- Job Title: {{ $json.job_title }}\n- Company Name: {{ $json.company_name }}\n- Job Description / Requirements: {{ $json.job_description }}\nYour task is to generate **5–10 short, relevant assessment questions** for a candidate applying to this role.  \n\nGuidelines:\n1. **Only generate questions** — do NOT provide answers.  \n2. Questions should be **direct, concise, and quick to answer** (ideally 1–2 sentences per answer).  \n3. Cover **technical skills, problem-solving, and relevant soft skills**.  \n4. Format each question like this:  \n\nQuestion 1: [Question text]  \nQuestion 2: [Question text]  \n…and so on.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -2448,
+        -720
+      ],
+      "id": "2b151219-503e-4d96-9159-1810411635db",
+      "name": "AI Agent1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -2480,
+        -544
+      ],
+      "id": "6a301b3e-059f-446a-88d1-b0378a971715",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "NDw0Pb1l4ior3S6C",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.id }}",
+        "contextWindowLength": 1
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2384,
+        -544
+      ],
+      "id": "4af11ccb-6aba-483d-93c3-c6cedfff602c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "tableId": "Job Questions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Company ID",
+              "fieldValue": "={{ $('Company').item.json.id }}"
+            },
+            {
+              "fieldId": "Questions",
+              "fieldValue": "={{ $json.output }}"
+            },
+            {
+              "fieldId": "Job Ttile",
+              "fieldValue": "={{ $('Company').item.json.job_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2128,
+        -720
+      ],
+      "id": "36f1c519-5881-4d17-a293-d22b8aabb8aa",
+      "name": "Questions",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Job Questions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Job Ttile",
+              "keyValue": "={{ $('Company Info').item.json.job_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        288
+      ],
+      "id": "36d02262-ab3d-4fbb-a12c-3f32da5c93b9",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the questions from Supabase\nlet questionsRaw = $input.first().json.Questions;\n\n// Convert to array if it is a string\nlet questionsArray = [];\n\nif (typeof questionsRaw === 'string') {\n    // Split by \"Question X:\" pattern or line breaks\n    questionsArray = questionsRaw.split(/Question \\d+:/).filter(q => q.trim() !== '');\n} else if (Array.isArray(questionsRaw)) {\n    questionsArray = questionsRaw;\n} else {\n    throw new Error(\"Unexpected questions format: must be string or array\");\n}\n\n// Map each question to an <li> and join into HTML\nconst questionsHTML = questionsArray.map(q => `<li>${q.trim()}</li>`).join('');\n\n// Return the HTML for use in Gmail template\nreturn {\n    questions_html: questionsHTML\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1168,
+        288
+      ],
+      "id": "7a04d742-4fdf-4064-84da-4ba2f61bc296",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an intelligent HR/Recruitment AI assistant. Your task is to read candidate answers to a set of job-related questions and provide insights, evaluation, or summaries based on the job title and role description.\n\nRules:\n\n1. The job information includes:\n   - Job Title: {{ $('Questions1').item.json['Job Ttile'] }}\n   - Questions: {{ $('Questions1').item.json.Questions }}\n\n2. Candidate answers format:\n   Question 1: <Candidate's answer>\n   Question 2: <Candidate's answer>\n   ...\n   Question N: <Candidate's answer>\n\nInstructions for each candidate:\n\n- Provide an overall **rating** based on the answers in the format `0/100` (but do NOT mention \"/100\").\n- Provide a concise, professional **summary** that highlights the candidate's strengths and alignment with the job requirements.\n- Do NOT repeat questions or answers.\n- Do NOT mention the candidate's name; refer only to \"the candidate\".\n- Focus strictly on the provided answers; do NOT assume or make up information.\n- **Output only two fields**: `rating` and `summary`.\n\nCandidate's answers and questions (combined email content):\n{{ $('Message').item.json.text }}\n\nStrictly return:\nRating:\nSummary:\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1872,
+        752
+      ],
+      "id": "0e988e2f-263b-4a42-9dc5-3e93e1b03aef",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": "mistralai/mistral-7b-instruct-v0.3",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        928
+      ],
+      "id": "163c7378-8d18-4438-8634-9f6336029410",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "NDw0Pb1l4ior3S6C",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2864,
+        752
+      ],
+      "id": "95a68c0e-2849-45a7-9690-4a03c501a626",
+      "name": "Received",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const subject = $input.first().json.Subject;\n\n// Match everything between \"the \" and \" Role\"\nconst match = subject.match(/the (.+?) Role/i);\nconst jobTitle = match ? match[1].trim() : null;\n\nreturn [{ job_title: jobTitle }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2672,
+        752
+      ],
+      "id": "231fbcdf-1ed2-474f-bf64-c56234dd1cd5",
+      "name": "Job Title"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Job Questions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Job Ttile",
+              "keyValue": "={{ $json.job_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2464,
+        752
+      ],
+      "id": "7c8c4185-34e1-4603-b875-769b84627b8f",
+      "name": "Questions1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $('Received').item.json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2256,
+        752
+      ],
+      "id": "edc4279a-4742-4e49-be7b-0b04f7239e88",
+      "name": "Message",
+      "webhookId": "8bd9f95b-6a11-4063-8e01-d011eaddb512",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emailText = $input.first().json.text; // raw email text\n\n// Regex: grab everything after \"Hi \" up to the first comma or newline\nconst nameMatch = emailText.match(/Hi\\s+([^,\\n]+)/i);\n\nconst candidateName = nameMatch ? nameMatch[1].trim() : null;\n\nreturn [{ json: { candidateName } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2048,
+        752
+      ],
+      "id": "511624ae-f812-44d9-bf23-8e00d7e54d25",
+      "name": "Name"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "hello"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1776,
+        928
+      ],
+      "id": "d6584200-d47b-41e8-b987-d20b572734a7",
+      "name": "Memory1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputText = $input.first().json.output; // replace with your raw text variable\n\n// Extract rating\nconst ratingMatch = inputText.match(/Rating:\\s*(\\d+)/);\nconst rating = ratingMatch ? parseInt(ratingMatch[1], 10) : null;\n\n// Extract summary\nconst summaryMatch = inputText.match(/Summary:\\s*([\\s\\S]*)/);\nconst summary = summaryMatch ? summaryMatch[1].trim() : null;\n\nreturn [{ json: { rating, summary } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        752
+      ],
+      "id": "a72a8ea6-48cf-47fd-9402-cd7085f0ceac",
+      "name": "Rating, Summary"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Candidates",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "full_name",
+              "keyValue": "={{ $('Name').item.json.candidateName }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        752
+      ],
+      "id": "88161139-2ef4-4a57-b7e0-7d783b8707f9",
+      "name": "Candidate1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "Job Answers",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Questions ID",
+              "fieldValue": "={{ $('Questions1').item.json.id }}"
+            },
+            {
+              "fieldId": "Candidate ID",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "Answer's Summary",
+              "fieldValue": "={{ $('Rating, Summary').item.json.summary }}"
+            },
+            {
+              "fieldId": "Rating",
+              "fieldValue": "={{ $('Rating, Summary').item.json.rating }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        752
+      ],
+      "id": "4a24f2d5-8130-41b6-9c42-f983f6044979",
+      "name": "Answer",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Company",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_title",
+              "keyValue": "={{ $('Candidate1').item.json.job_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        752
+      ],
+      "id": "f4a55c4f-28f1-434b-9d36-604b033bcb24",
+      "name": "Company1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rutcur515LUVxoCP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// -------------------\n// Build Questions HTML\n// -------------------\nlet questionsRaw = $('Questions1').first().json.Questions || \"\";\nquestionsRaw = String(questionsRaw).trim();\n\nlet questionsArray = [];\nif (questionsRaw) {\n  questionsArray = questionsRaw\n    .split(/(?:\\n|Question\\s*\\d+:)/i)\n    .map(q => q.trim())\n    .filter(q => q.length > 0);\n}\n\nif (questionsArray.length === 0) {\n  questionsArray = [questionsRaw || \"No questions found\"];\n}\n\nconst questionsHTML = questionsArray\n  .map((q, i) => `<li><strong>Q${i + 1}:</strong> ${q}</li>`)\n  .join(\"\");\n\n// -------------------\n// Get Job Fields\n// -------------------\nconst job = {\n  company_name: $input.first().json.company_name || \"\",\n  company_description: $input.first().json[\"company description\"] || \"\",\n  job_title: $input.first().json.job_title || \"\",\n  job_description: $input.first().json.job_description || \"\",\n  company_email: $input.first().json[\"Company-Email\"] || \"\"\n};\n\n// -------------------\n// Get Candidate Fields\n// -------------------\nconst candidate = {\n  full_name: $('Candidate1').first().json.full_name || \"\",\n  email: $('Candidate1').first().json.email || \"\",\n  phone_number: $('Candidate1').first().json.phone_number || \"\",\n  job_title: $('Candidate1').first().json.job_title || \"\",\n  motivation: $('Candidate1').first().json.motivation || \"\",\n  status: $('Candidate1').first().json.Status || \"\"\n};\n\n// -------------------\n// Get Answer Fields\n// -------------------\nconst answer = {\n  summary: $('Answer').first().json[\"Answer's Summary\"] || \"\",\n  rating: $('Answer').first().json.Rating || \"\"\n};\n\n// -------------------\n// Return One JSON Object\n// -------------------\nreturn [\n  {\n    json: {\n      questions_html: `<ul>${questionsHTML}</ul>`,\n      job,\n      candidate,\n      answer\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        752
+      ],
+      "id": "7e4469c7-4503-4732-b1c9-919a1abfb713",
+      "name": "Questions Format"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.job.company_email }}",
+        "subject": "=Candidate Submission & Ratings for {{ $json.job.job_title }}",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Candidate Questions & Ratings</title>\n  <style>\n    body {\n      font-family: Arial, Helvetica, sans-serif;\n      background: #ffffff; /* pure white */\n      margin: 0;\n      padding: 0;\n      color: #0f1724;\n    }\n\n    .card {\n      max-width: 640px;\n      margin: 40px auto;\n      background: #ffffff; /* no background tint */\n      border-radius: 16px;\n      box-shadow: 0 4px 24px rgba(2, 6, 23, 0.05);\n      overflow: hidden;\n      border: 1px solid #f2f2f2;\n    }\n\n    .pad {\n      padding: 32px;\n      line-height: 1.7;\n    }\n\n    h2 {\n      font-size: 22px;\n      font-weight: 700;\n      margin: 0 0 16px 0;\n      background: linear-gradient(to right, #5227FF, #B19EEF);\n      -webkit-background-clip: text;\n      -webkit-text-fill-color: transparent;\n    }\n\n    h3 {\n      font-size: 17px;\n      font-weight: 600;\n      margin: 26px 0 14px 0;\n      color: #2c3e50;\n      border-bottom: 1px solid #f0f2f5;\n      padding-bottom: 6px;\n    }\n\n    p {\n      margin: 10px 0;\n    }\n\n    ol, ul {\n      margin: 10px 0 18px 24px;\n      padding: 0;\n    }\n\n    li {\n      margin-bottom: 10px;\n    }\n\n    .rating-box {\n      border: 1px solid #ebeef2;\n      padding: 14px 18px;\n      border-radius: 8px;\n      margin: 12px 0 20px 0;\n      background: none; /* removed all background colors */\n    }\n\n    .footer {\n      padding: 18px 28px;\n      background: none; /* removed gray background */\n      color: #6b7280;\n      font-size: 13px;\n      border-top: 1px solid #f0f2f5;\n      text-align: center;\n      line-height: 1.6;\n    }\n\n    strong.gradient {\n      background: linear-gradient(to right, #5227FF, #B19EEF);\n      -webkit-background-clip: text;\n      -webkit-text-fill-color: transparent;\n    }\n\n    a {\n      color: #5227FF;\n      text-decoration: none;\n    }\n\n    a:hover {\n      text-decoration: underline;\n    }\n  </style>\n</head>\n\n<body>\n  <div class=\"card\">\n    <div class=\"pad\">\n      <h2>Candidate Submission: {{ $json.candidate.full_name }}</h2>\n\n      <p>Dear {{ $json.job.company_name }} Team,</p>\n\n      <p>\n        The candidate <strong>{{ $json.candidate.full_name }}</strong> has submitted responses \n        for the <strong>{{ $json.job.job_title }}</strong> role. Below are the questions they were asked:\n      </p>\n\n      <h3>Questions</h3>\n      <ol>\n        {{ $json.questions_html }}\n      </ol>\n\n      <h3>Candidate Rating</h3>\n      <div class=\"rating-box\">\n        <p><strong>Overall Rating:</strong> {{ $json.answer.rating }}/100</p>\n        <p><strong>Summary:</strong> {{ $json.answer.summary }}</p>\n      </div>\n\n      <h3>Next Steps</h3>\n      <p>If you would like to move forward, you can contact the candidate directly using the details below:</p>\n      <ul>\n        <li><strong>Email:</strong> {{ $json.candidate.email }}</li>\n        <li><strong>Phone:</strong> {{ $json.candidate.phone_number }}</li>\n      </ul>\n\n      <p>You can also review the candidate’s full submission in your portal for more details.</p>\n\n      <p>Best regards,<br>\n      <strong class=\"gradient\">{{ $json.job.company_name }} Team</strong></p>\n    </div>\n\n    <div class=\"footer\">\n      This is an automated message. Please do not reply directly to this email unless instructed.\n    </div>\n  </div>\n</body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        752
+      ],
+      "id": "a6a3c95f-066a-4586-beab-f3399bd9c015",
+      "name": "Mail To Company1",
+      "webhookId": "6178fe25-d6d9-4f45-bc69-b2c29da887bd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Row Info.').item.json.email }}",
+        "subject": "=Next Step: Share Your Responses for the {{ $('Company Info').item.json.job_title }} Role",
+        "message": "=<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>Answer Your Shortlisted Questions</title>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <style>\n      body {\n        font-family: Arial, Helvetica, sans-serif;\n        background: #ffffff; /* clean white background */\n        margin: 0;\n        padding: 0;\n        color: #0f1724;\n      }\n\n      .card {\n        max-width: 640px;\n        margin: 40px auto;\n        background: #ffffff;\n        border-radius: 16px;\n        box-shadow: 0 4px 24px rgba(2, 6, 23, 0.05);\n        overflow: hidden;\n        border: 1px solid #f2f2f2;\n      }\n\n      .pad {\n        padding: 32px;\n        line-height: 1.7;\n      }\n\n      .title {\n        font-size: 22px;\n        font-weight: 700;\n        margin: 0 0 18px 0;\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n\n      .muted {\n        color: #6b7280;\n        font-size: 15px;\n        margin: 0 0 18px 0;\n      }\n\n      ol {\n        margin: 14px 0 20px 22px;\n        padding: 0;\n      }\n\n      li {\n        margin-bottom: 10px;\n      }\n\n      .footer {\n        padding: 20px 28px;\n        background: none; /* no gray background */\n        color: #6b7280;\n        font-size: 13px;\n        border-top: 1px solid #f0f2f5;\n        line-height: 1.6;\n        text-align: center;\n      }\n\n      .footer strong {\n        background: linear-gradient(to right, #5227FF, #B19EEF);\n        -webkit-background-clip: text;\n        -webkit-text-fill-color: transparent;\n      }\n    </style>\n  </head>\n\n  <body>\n    <div class=\"card\">\n      <div class=\"pad\">\n        <p class=\"title\">Next Step: Your Responses Needed</p>\n        <p class=\"muted\">Hi {{ $('Row Info.').item.json.full_name }},</p>\n\n        <p>\n          Congratulations again on being <strong>shortlisted</strong> for the\n          <strong>{{ $('Company Info').item.json.job_title }}</strong> role at\n          <strong>{{ $('Company Info').item.json.company_name }}</strong>!\n        </p>\n\n        <p>\n          As the next step, please review the following questions and reply to this email with your answers:\n        </p>\n\n        <ol>\n          {{ $json.questions_html }}\n        </ol>\n\n        <p>\n          Please make sure to answer all questions clearly. Your responses will help us understand your fit for the role better.\n        </p>\n\n        <p class=\"muted\">\n          We look forward to reviewing your answers!\n        </p>\n      </div>\n\n      <div class=\"footer\">\n        Warm regards,<br />\n        <strong>Recruitment Team</strong> — {{ $('Company Info').item.json.company_name }}\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -976,
+        288
+      ],
+      "id": "213e7543-03e5-48fc-8f7f-ed45acc3fad2",
+      "name": "Question's Mail",
+      "webhookId": "b24f193b-b5c6-40b2-b5d3-13b2ae0eb7ab",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6lU7dmVPNBlJMcQj",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candidate-form",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2880,
+        -352
+      ],
+      "id": "81cb1e1c-1d95-4751-b48d-8e0f51a20c3e",
+      "name": "Candidate Webhook",
+      "webhookId": "6f84b43d-2a3c-4202-bf36-457ebcf87a13"
+    },
+    {
+      "parameters": {
+        "path": "company-form",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2864,
+        -720
+      ],
+      "id": "0ecdac3c-1694-45ff-a66d-c8f1e7e548fb",
+      "name": "Company Webhook",
+      "webhookId": "43dc71b0-f76f-4e07-9cb5-b5c237cf9a25"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Clean Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Evaluations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluations": {
+      "main": [
+        [
+          {
+            "node": "Mail To Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from CV (RAW)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Text": {
+      "main": [
+        [
+          {
+            "node": "CV Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CV Summary": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mail To Company": {
+      "main": [
+        [
+          {
+            "node": "Mail To Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No. Of Outputs": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate": {
+      "main": [
+        [
+          {
+            "node": "Company Info.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Info.": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File ID Generator": {
+      "main": [
+        [
+          {
+            "node": "Multiple Binary Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Multiple Binary Data": {
+      "main": [
+        [
+          {
+            "node": "Extract from CV (RAW)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CV Stored In Bucket",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CV Stored In Bucket": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Mail Form": {
+      "main": [
+        [
+          {
+            "node": "Name Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Name Fields": {
+      "main": [
+        [
+          {
+            "node": "Status Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Update": {
+      "main": [
+        [
+          {
+            "node": "Row Info.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Row Info.": {
+      "main": [
+        [
+          {
+            "node": "Company Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Info": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Shortlisted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shortlisted": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Question's Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Rating, Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Received": {
+      "main": [
+        [
+          {
+            "node": "Job Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Title": {
+      "main": [
+        [
+          {
+            "node": "Questions1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Questions1": {
+      "main": [
+        [
+          {
+            "node": "Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message": {
+      "main": [
+        [
+          {
+            "node": "Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Name": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rating, Summary": {
+      "main": [
+        [
+          {
+            "node": "Candidate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate1": {
+      "main": [
+        [
+          {
+            "node": "Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer": {
+      "main": [
+        [
+          {
+            "node": "Company1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company1": {
+      "main": [
+        [
+          {
+            "node": "Questions Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Questions Format": {
+      "main": [
+        [
+          {
+            "node": "Mail To Company1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Webhook": {
+      "main": [
+        [
+          {
+            "node": "Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Webhook": {
+      "main": [
+        [
+          {
+            "node": "File ID Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Questions": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "de7bc7a2-6be3-4c49-a9da-5bfa9831b1cd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51d8c322f87049d3fd6fb4ddd62546551d56b752a62408793bd6c0af9bac6798"
+  },
+  "id": "4nUwzN9YXbOs3Iy7",
+  "tags": []
+}
