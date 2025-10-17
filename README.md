@@ -150,10 +150,9 @@ For candidates, it’s a smoother experience.
 
 ## 🧑‍💻 Developer
 
-**Bekam**  
+**Abdul Rehman (Solo)**  
 💼 AI Workflow & Automation Developer  
-📧 [your-email@example.com]  
-🌐 [your-portfolio-or-linkedin]
+📧 abdulrehman657.pk@gmail.com
 
 ---
 
