@@ -3,146 +3,173 @@
 This Repo Contains The AI Driven Recruitment Workflow
 
 
-🤖 AI-Driven Recruitment Workflow
-Automate Hiring — Smarter, Faster, and Effortlessly with AI
+# 🤖 AI-Driven Recruitment Workflow
 
-This project is a complete AI-powered recruitment automation system designed to simplify and speed up the hiring process for both companies and candidates.
-It leverages React, Supabase, webhooks, and AI agents to handle everything — from job posting to candidate evaluation — automatically.
+> **An intelligent end-to-end recruitment automation system powered by AI, React, and Supabase.**  
+> Simplify job posting, candidate applications, evaluation, and communication — all in one automated flow.
 
-🚀 Overview
+---
 
-The AI Recruitment Workflow enables:
+## 🧩 Overview
 
-Companies to post job listings instantly.
+The **AI-Driven Recruitment Workflow** automates the entire hiring pipeline — from job posting to candidate evaluation and feedback.  
+It’s designed for **companies** and **candidates** to interact effortlessly, while **AI agents** handle all the heavy lifting behind the scenes.
 
-Candidates to apply for jobs seamlessly.
+Built using:
+- ⚛️ **React** for frontend
+- 🗄️ **Supabase** for data storage
+- 🧠 **LLaMA (Hugging Face)** for AI-based analysis
+- 🔗 **Webhooks** and **Email Automation** for real-time communication
 
-AI agents to analyze, score, and summarize candidate profiles and generate interview questions.
+---
 
-Automatic email updates at every stage — ensuring a smooth and transparent experience.
+## 🚀 Features
 
-This system saves hours of manual screening, delivers AI-generated insights, and keeps the entire process centralized in Supabase for full visibility.
+✅ **AI-Powered Job Screening** — Generates smart interview questions & candidate evaluations  
+✅ **Automatic Email Updates** — Sends tailored emails to both candidates and companies  
+✅ **End-to-End Workflow** — From posting jobs → applying → evaluation → decision  
+✅ **Fully Synced Database** — All data stored and managed in **Supabase**  
+✅ **Smart Rating System** — AI rates candidates across 5 performance categories  
+✅ **One-Click Shortlist/Reject** — Company can decide directly via email link  
 
-🧠 How It Works
-🏢 For Companies
+---
 
-Fill out a simple form with:
+## 🏢 Company Flow
 
-Company Name & Description
+1. **Post a Job** via the React web page  
+   - Company Name  
+   - Description  
+   - Notification Email  
+   - Job Title  
+   - Job Requirements  
 
-Notification Email
+2. **Workflow Actions**  
+   - Data is stored in `company` table (Supabase).  
+   - AI Agent generates **10 custom interview questions** based on requirements.  
+   - Job instantly appears in the “Apply for Job” dropdown for candidates.  
 
-Job Title & Requirements
+3. **Receive Applications Automatically**  
+   - Company receives an email with candidate details, summary, and ratings.  
+   - Option to **Shortlist** or **Reject** with a custom message.
 
-On submission:
+---
 
-Data is stored in Supabase (company table).
+## 👨‍💼 Candidate Flow
 
-An AI agent generates 10 intelligent job-specific questions.
+1. **Apply for a Job** by filling out:
+   - Full Name  
+   - Email  
+   - Phone Number  
+   - Job Title (auto-linked from company postings)  
+   - CV (PDF Upload)  
+   - Short Motivation Paragraph  
 
-The job is instantly available for candidates to apply.
+2. **AI-Powered Evaluation**
+   - CV summary generated using **LLaMA via Hugging Face**  
+   - AI compares CV with job requirements and produces:
+     - Profile Summary  
+     - Ratings in 5 key categories  
 
-👨‍💼 For Candidates
+3. **Automatic Communication**
+   - Candidate receives application confirmation.  
+   - If **shortlisted**, they receive:
+     - A “Shortlisted” email with a note.  
+     - A second email with **10 AI-generated questions** to answer.  
+   - Once they reply, the AI re-evaluates and sends final insights to the company.
 
-Select a job from the dropdown (auto-linked to company postings).
+---
 
-Submit:
+## 📊 Workflow Summary
 
-Full Name
+| Step | Action | AI Involvement |
+|------|---------|----------------|
+| 1 | Company posts job | Generates 10 questions |
+| 2 | Candidate applies | Summarizes CV & rates profile |
+| 3 | Company reviews | Receives ratings & summary |
+| 4 | Company shortlists | Candidate gets questions |
+| 5 | Candidate replies | AI re-evaluates answers |
+| 6 | Final evaluation | Email sent to company with full report |
 
-Email & Phone Number
+---
 
-CV (PDF)
+## 🗄️ Database Structure (Supabase)
 
-A short motivation paragraph
+| Table | Description |
+|--------|--------------|
+| `company` | Stores company info and job details |
+| `job_questions` | Contains AI-generated questions for each job |
+| `candidate` | Stores candidate data, summaries, and scores |
 
-Workflow:
+---
 
-CV is summarized using LLaMA via Hugging Face API.
+## ⚙️ Tech Stack
 
-AI compares CV summary + job requirements → generates profile summary + 5 category ratings.
+| Layer | Technology |
+|--------|-------------|
+| Frontend | React.js + TailwindCSS |
+| Backend | Supabase |
+| AI Engine | LLaMA (Hugging Face API) |
+| Automation | Webhooks + AI Agents |
+| Email | Gmail Integration |
+| Hosting | Compatible with Vercel / Netlify |
 
-Application details & evaluation are emailed to both candidate and company.
+---
 
-✉️ AI-Enhanced Communication Flow
+## 🧠 AI Agents Responsibilities
 
-Candidate Receives:
+- Generate **custom interview questions** based on job descriptions  
+- Summarize **candidate CVs**  
+- Evaluate responses and **score candidates** across 5 dimensions  
+- Draft **email summaries** for both companies and candidates  
 
-Confirmation email
+---
 
-Notification upon shortlisting or rejection
+## 🧩 Customization
 
-A follow-up email containing the 10 AI-generated interview questions
+This workflow is modular — you can integrate:
+- Advanced LLMs (e.g., GPT, Claude, Gemini)  
+- Internal HR or ATS systems  
+- Real-time dashboards for recruitment insights  
+- Automated scheduling tools for interviews  
 
-Company Receives:
+---
 
-Application summary with candidate ratings & AI-generated insights
+## 🏁 Why This Workflow
 
-Follow-up after candidate responds to interview questions
+Hiring doesn’t need to be manual anymore.  
+This system delivers:
+- ⚡ Speed  
+- 🎯 Accuracy  
+- 🤝 Transparency  
+- 📈 Efficiency  
 
-⚙️ Decision & Follow-Up
+For recruiters, it’s an intelligent assistant.  
+For candidates, it’s a smoother experience.
 
-Company can shortlist or reject candidates directly from the email link.
+---
 
-The system automatically sends appropriate personalized emails to the candidate.
+## 🧑‍💻 Developer
 
-Final reports and ratings are emailed back to the company for review.
+**Bekam**  
+💼 AI Workflow & Automation Developer  
+📧 [your-email@example.com]  
+🌐 [your-portfolio-or-linkedin]
 
-🗄️ Tech Stack
-Component	Technology
-Frontend	React.js + TailwindCSS
-Backend & Database	Supabase
-AI Engine	LLaMA (HuggingFace API)
-Automation & Webhooks	Custom Webhooks + AI Agents
-Email Automation	Gmail Integration
-Hosting	Compatible with Vercel / Netlify
-📊 Supabase Structure
-Table	Purpose
-company	Stores job posting details
-job_questions	Stores AI-generated questions per job
-candidate	Stores candidate profiles, summaries & ratings
-💡 Key Features
+---
 
-✅ AI-Powered Screening — Automatically evaluates candidates on 5 skill categories
-✅ Automated Email Flow — Keeps both company & candidate informed
-✅ Dynamic Question Generation — Unique job-based interview questions
-✅ Seamless Integration — Everything stored and synced via Supabase
-✅ One-Click Decisions — Approve or reject directly from email links
+## 🪄 Demo Summary
 
-📩 Example Workflow Summary
+> - Post a Job → AI Generates Questions  
+> - Candidate Applies → AI Evaluates  
+> - Company Reviews → Shortlists/Rejects  
+> - AI Sends Questions → Evaluates Answers  
+> - Company Receives Final Candidate Report  
 
-Company posts a new job → AI creates questions
+**Everything** happens automatically — powered by your workflow logic and AI intelligence.  
 
-Candidate applies → AI summarizes CV
+---
 
-Company receives profile + scores
+### ⭐ Star this repo if you find it useful!
 
-Candidate gets shortlisted → AI sends questions
+---
 
-Candidate answers → AI re-evaluates → Company notified
-
-Every step is automated, tracked, and intelligently managed.
-
-🧩 Customization
-
-This is a demo version — you can easily:
-
-Integrate advanced LLMs (e.g., GPT, Claude, Gemini)
-
-Add real-time dashboards for HR teams
-
-Plug in ATS or CRM systems
-
-Automate scheduling interviews and follow-ups
-
-🏁 Conclusion
-
-This workflow is a next-generation hiring solution — built to reduce manual effort, improve candidate experience, and empower companies with AI insights at every step.
-
-You can integrate it with your company’s internal HR tools or expand it into a full AI recruitment platform.
-
-🔗 Author
-
-Abdul Rehman
-💼 Developer | AI Workflow Designer
-📧 Abdulrehman657.pk@gmail.com
