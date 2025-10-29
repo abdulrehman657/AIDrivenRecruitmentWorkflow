@@ -8,6 +8,8 @@ This Repo Contains The AI Driven Recruitment Workflow
 > **An intelligent end-to-end recruitment automation system powered by AI, React, and Supabase.**  
 > Simplify job posting, candidate applications, evaluation, and communication — all in one automated flow.
 
+Watch Demo Video: (https://vimeo.com/1131606381?share=copy&fl=sv&fe=ci)
+
 ---
 
 ## 🧩 Overview
